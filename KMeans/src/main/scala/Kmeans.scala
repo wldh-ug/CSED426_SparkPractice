@@ -38,55 +38,100 @@ object Kmeans {
 		var centroids: Map[Int, Array[Double]] = Map()
 
 		// Set initial centroids
-		if (mode == 0) {   
+		if (mode == 0) {
+
 			// randomly sample K data points
 			K = args(3).toInt
-			// centroids = ...
-		}
-		else {
+
+			val seed = scala.util.Random
+			for (i <- 1 to K) centroids(i) = Array(seed.nextDouble * 1000, seed.nextDouble * 1000, seed.nextDouble * 1000)
+
+		} else {
+
 			// user-defined centroids
 			// you can use another built-in data type besides Map
 			centroids = Map(1 -> Array(5, 1.2, -0.8), 2 -> Array(-3.2, -1.1, 3.0), 3 -> Array(-2.1, 5.1, 1.1))
 			K = centroids.size
+
 		}
 
 		// Remove duplicates
-		lines = lines.distinct
+		val distinctLines = lines.distinct
 		
 		/**
 		 * Don't change termination condition
 		 * sum of moved centroid distances
 		 */
-		var change : Double = 100
-		while(change > 0.001) {
+		var helloCacheWorld = distinctLines.map(_.split(",").map(_.toDouble)).cache
+		var mappinParty: RDD[(Int, Array[Double])] = sc.emptyRDD
+		var change: Double = 100
+		while (change > 0.001) {
 			
-			val mappinParty = sc.map(line -> line.split(",").foreach(toInt))
+			// Map to calculate each's lord
+			mappinParty = helloCacheWorld
+					.map(assignLord(centroids))
+					
+			// Re-initialize centroids
+			val oldCentroids = centroids
+			centroids = Map()
+			for (i <- 1 to K) centroids(i) = Array(0, 0, 0, 0)
 
-			colloid = mappinParty.map(calcMonarch)
+			// Sum all ones
+			mappinParty.map(one => {
 
-			for ((centroid, position) <- centroids) {
+				centroids(one._1)(0) = (centroids(one._1)(0) + one._2(0))
+				centroids(one._1)(1) = (centroids(one._1)(1) + one._2(1))
+				centroids(one._1)(2) = (centroids(one._1)(2) + one._2(2))
 
-				
+				centroids(one._1)(3) += 1
+
+			})
+
+			// Calculate new centroids && calculate change
+			change = 0
+			for (i <- 1 to K) {
+
+				centroids(i)(0) /= centroids(i)(3)
+				centroids(i)(1) /= centroids(i)(3)
+				centroids(i)(2) /= centroids(i)(3)
+
+				change += calcEuclidean(oldCentroids(i), centroids(i))
 
 			}
 
 		}
 
+		// Save as text file
+		mappinParty.map(one => one._1.toString + "\t" + one._2.mkString(",")).saveAsTextFile(args(1))
+
 	}
 
-	def gatherMonarch(centroids: Array[Int]) = assignLord(centroids)
+	def assignLord(centroids: Map[Int, Array[Double]]) = (you: Array[Double]) => {
 
-	def assignLord(centroids: Map[Array[Int]], you: Array[Int]) {
-
-		val yourLord = 0
-		val smallestDistance = Int.max
+		var yourLord = 0
+		var smallestDistance = Double.MaxValue
 
 		for ((lord, position) <- centroids) {
 
-			val distance = (position[0] - you[0]) ** 2 + scala.Math.
+			val distance = calcEuclidean(position, you)
+
+			if (distance < smallestDistance) {
+
+				yourLord = lord
+				smallestDistance = distance
+
+			}
 
 		}
 
+		(yourLord, you)
+
 	}
+
+	def calcEuclidean(a: Array[Double], b: Array[Double])
+			= math.sqrt(
+				math.pow(a(0) - b(0), 2) +
+				math.pow(a(1) - b(1), 2) +
+				math.pow(a(2) - b(2), 2) )
 
 }
