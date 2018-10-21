@@ -1,4 +1,6 @@
 handin.zip
+target/
+KMeans.jar
 
 .vscode/*
 !.vscode/settings.json
