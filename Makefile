@@ -15,7 +15,7 @@ handin:
 	@printf "\033[1;37mhandin.zip\033[0m created.\n"
 
 clean:
-	@-rm -f handin.zip
+	@-rm -f handin.zip KMeans.jar
 	@cd KMeans; sbt clean
 	@printf "\033[1;37mAll created files are cleaned.\033[0m\n"
 
