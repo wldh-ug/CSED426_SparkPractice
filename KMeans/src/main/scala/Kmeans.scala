@@ -44,13 +44,19 @@ object Kmeans {
 			K = args(3).toInt
 
 			val seed = scala.util.Random
-			for (i <- 1 to K) centroids(i) = Array(seed.nextDouble * 1000, seed.nextDouble * 1000, seed.nextDouble * 1000)
+			for (i <- 1 to K) centroids(i)
+					= Array(seed.nextDouble * 1000, seed.nextDouble * 1000, seed.nextDouble * 1000)
 
 		} else {
 
 			// user-defined centroids
 			// you can use another built-in data type besides Map
-			centroids = Map(1 -> Array(5, 1.2, -0.8), 2 -> Array(-3.2, -1.1, 3.0), 3 -> Array(-2.1, 5.1, 1.1))
+			centroids = Map(
+					1 -> Array(5, 1.2, -0.8),
+					2 -> Array(-3.2, -1.1, 3.0),
+					3 -> Array(-2.1, 5.1, 1.1)
+					)
+
 			K = centroids.size
 
 		}
@@ -102,7 +108,10 @@ object Kmeans {
 		}
 
 		// Save as text file
-		mappinParty.sortBy(serialize).map(one => one._1.toString + "\t" + one._2.mkString(",")).saveAsTextFile(args(1))
+		mappinParty
+				.map(one => one._1.toString + "\t" + one._2.mkString(","))
+				.sortBy(one => one)
+				.saveAsTextFile(args(1))
 
 	}
 
@@ -132,15 +141,7 @@ object Kmeans {
 			= math.sqrt(
 				math.pow(a(0) - b(0), 2) +
 				math.pow(a(1) - b(1), 2) +
-				math.pow(a(2) - b(2), 2) )
-
-	def serialize(one: (Int, Array[Double]))
-			= (Double.MaxValue
-			  - (one._1 * 20000000
-			    + one._2(0) * 1000000
-			    + one._2(1) * 1000
-			    + one._2(2)
-			    )
-			)
+				math.pow(a(2) - b(2), 2)
+				)
 
 }
