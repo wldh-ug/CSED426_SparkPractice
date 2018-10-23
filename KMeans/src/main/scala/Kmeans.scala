@@ -37,15 +37,18 @@ object Kmeans {
 		var K: Int = 0
 		var centroids: Map[Int, Array[Double]] = Map()
 
+		// Prepare RDD
+		var helloCacheWorld = lines.distinct.map(_.split(",").map(_.toDouble)).cache
+
 		// Set initial centroids
 		if (mode == 0) {
 
 			// randomly sample K data points
 			K = args(3).toInt
 
-			val seed = scala.util.Random
-			for (i <- 1 to K) centroids(i)
-					= Array(seed.nextDouble * 1000, seed.nextDouble * 1000, seed.nextDouble * 1000)
+			val elected = helloCacheWorld.takeSample(false, K)
+			for (i <- 1 to K)
+				centroids(i) = elected(i - 1)
 
 		} else {
 
@@ -60,15 +63,11 @@ object Kmeans {
 			K = centroids.size
 
 		}
-
-		// Remove duplicates
-		val distinctLines = lines.distinct
 		
 		/**
 		 * Don't change termination condition
 		 * sum of moved centroid distances
 		 */
-		var helloCacheWorld = distinctLines.map(_.split(",").map(_.toDouble)).cache
 		var mappinParty: RDD[(Int, Array[Double])] = sc.emptyRDD
 		var change: Double = 100
 		while (change > 0.001) {
