@@ -102,7 +102,7 @@ object Kmeans {
 		}
 
 		// Save as text file
-		mappinParty.map(one => one._1.toString + "\t" + one._2.mkString(",")).saveAsTextFile(args(1))
+		mappinParty.sortBy(serialize).map(one => one._1.toString + "\t" + one._2.mkString(",")).saveAsTextFile(args(1))
 
 	}
 
@@ -133,5 +133,14 @@ object Kmeans {
 				math.pow(a(0) - b(0), 2) +
 				math.pow(a(1) - b(1), 2) +
 				math.pow(a(2) - b(2), 2) )
+
+	def serialize(one: (Int, Array[Double]))
+			= (Double.MaxValue
+			  - (one._1 * 20000000
+			    + one._2(0) * 1000000
+			    + one._2(1) * 1000
+			    + one._2(2)
+			    )
+			)
 
 }

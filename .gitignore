@@ -1,6 +1,8 @@
 # KMeans
 handin.zip
 KMeans.jar
+m0_*.txt
+m1_*.txt
 
 # SBT
 dist/*

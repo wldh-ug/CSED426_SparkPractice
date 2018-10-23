@@ -24,15 +24,22 @@ test: KMeans.jar
 	@hdfs dfs -rm -r -f /user/input /user/output
 	@hdfs dfs -mkdir -p /user /user/input
 	@hdfs dfs -put -f KMeans/kmeans_input.txt /user/input
-	@printf "\033[1;37m\nRunning KMeans...\033[0;37m\n"
+	@printf "\033[1;37m\nRunning KMeans (mode 0)...\033[0;37m\n"
 	@spark-submit --class Kmeans KMeans.jar hdfs://localhost:9000//user/input/kmeans_input.txt hdfs://localhost:9000//user/output 0 3
+	@printf "\033[1;37m\nOutput will be saved to <m0_0.txt> and <m0_1.txt>.\033[0;37m\n"
+	@hdfs dfs -get -f /user/output/part-00000 m0_0.txt
+	@hdfs dfs -get -f /user/output/part-00001 m0_1.txt
+	@printf "\033[1;37m\nPreparing HDFS structure to relaunch KMeans...\033[0;37m\n"
+	@hdfs dfs -rm -r -f /user/output
+	@printf "\033[1;37m\nRunning KMeans (mode 1)...\033[0;37m\n"
 	@spark-submit --class Kmeans KMeans.jar hdfs://localhost:9000//user/input/kmeans_input.txt hdfs://localhost:9000//user/output 1
-	@printf "\033[1;37m\nOutput will be saved to <mode_0.txt> and <mode_1.txt>.\033[0;37m\n"
-	@hdfs dfs -get -f /user/output/part-00000 mode_0.txt
-	@hdfs dfs -get -f /user/output/part-00001 mode_1.txt
+	@printf "\033[1;37m\nOutput will be saved to <m1_0.txt> and <mode1_1.txt>.\033[0;37m\n"
+	@hdfs dfs -get -f /user/output/part-00000 m1_0.txt
+	@hdfs dfs -get -f /user/output/part-00001 m1_1.txt
 	@printf "\033[1;37m\nDifferences of mode 0 is not available (random result)\033[0;37m\n"
 	@printf "\033[1;37m\nDifferences of mode 1\033[0;37m\n"
-	@-diff KMeans/output_example/part-00001 mode_1.txt
+	@-diff KMeans/output_example/part-00000 m1_0.txt
+	@-diff KMeans/output_example/part-00000 m1_1.txt
 	@printf "\033[0m\n"
 
 build: KMeans.jar
